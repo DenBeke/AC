@@ -1370,7 +1370,7 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
         sendf(-1, 1, "ri5", gib ? SV_GIBDIED : SV_DIED, target->clientnum, actor->clientnum, actor->state.frags, gun);
         
         
-        // check for knife kill
+        // check for knife kills
         if(gib && gun == GUN_KNIFE) {
             actor->state.knifekills++;
             std::stringstream ss;
@@ -1379,18 +1379,32 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
             ss << " knife kills";
             sendservmsg(ss.str().c_str());
         }
+        
+        
+        // check for headshots
+        if(gib && gun == GUN_SNIPER) {
+            actor->state.headshots++;
+            std::stringstream ss;
+            ss << "\f1[Server] " << actor->name << " made ";
+            ss << actor->state.headshots;
+            ss << " headshots";
+            sendservmsg(ss.str().c_str());
+        }
     
         
         // print if target had a kill spree
         if(target->state.killingspree >= 5)
             sendservmsg(target_ks.str().c_str());
         
+        
         // print if actor is on killing spree
         if(actor->state.killingspree >= 5)
             sendservmsg(actor_ks.str().c_str());
         
+        
         // reset killing spree of target
         target->state.killingspree = 0;
+        
         
         if((suic || tk) && (m_htf || m_ktf) && targethasflag >= 0)
         {
