@@ -1370,6 +1370,17 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
         sendf(-1, 1, "ri5", gib ? SV_GIBDIED : SV_DIED, target->clientnum, actor->clientnum, actor->state.frags, gun);
         
         
+        // check for knife kill
+        if(gib && gun == GUN_KNIFE) {
+            actor->state.knifekills++;
+            std::stringstream ss;
+            ss << "\f1[Server] " << actor->name << " made ";
+            ss << actor->state.knifekills;
+            ss << " knife kills";
+            sendservmsg(ss.str().c_str());
+        }
+    
+        
         // print if target had a kill spree
         if(target->state.killingspree >= 5)
             sendservmsg(target_ks.str().c_str());
