@@ -126,6 +126,8 @@ struct clientstate : playerstate
     bool scoped;
     int flagscore, frags, teamkills, deaths, shotdamage, damage, points, events, lastdisc, reconnections;
 
+    int killingspree; // count the number of kills in a row
+
     clientstate() : state(CS_DEAD) {}
 
     bool isalive(int gamemillis)
@@ -148,6 +150,7 @@ struct clientstate : playerstate
         akimbomillis = 0;
         scoped = forced = false;
         flagscore = frags = teamkills = deaths = shotdamage = damage = points = events = lastdisc = reconnections = 0;
+        killingspree = 0;
         respawn();
     }
 
@@ -160,6 +163,7 @@ struct clientstate : playerstate
         spawn = 0;
         lastshot = 0;
         akimbomillis = 0;
+        killingspree = 0;
         scoped = false;
     }
 };
@@ -169,6 +173,7 @@ struct savedscore
     string name;
     uint ip;
     int frags, flagscore, deaths, teamkills, shotdamage, damage, team, points, events, lastdisc, reconnections;
+    int killingspree;
     bool valid, forced;
 
     void reset()
@@ -190,6 +195,7 @@ struct savedscore
         events = cs.events;
         lastdisc = cs.lastdisc;
         reconnections = cs.reconnections;
+        killingspree = cs.killingspree;
         team = t;
         valid = true;
     }
@@ -207,6 +213,7 @@ struct savedscore
         cs.events = events;
         cs.lastdisc = lastdisc;
         cs.reconnections = reconnections;
+        cs.killingspree = killingspree;
         reset();
     }
 };

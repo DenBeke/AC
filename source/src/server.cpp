@@ -9,6 +9,9 @@
 #include "servercontroller.h"
 #include "serverfiles.h"
 
+#include <map>
+#include <sstream>
+
 // config
 servercontroller *svcctrl = NULL;
 servercommandline scl;
@@ -58,6 +61,7 @@ char *global_name;
 int totalclients = 0;
 int cn2boot;
 int servertime = 0, serverlagged = 0;
+
 
 bool valid_client(int cn)
 {
@@ -1317,9 +1321,38 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
         bool tk = false, suic = false;
         target->state.deaths++;
         checkfrag(target, actor, gun, gib);
+        
+        std::stringstream actor_ks; // actor killingspree message
+        std::stringstream target_ks; // target (ended) killingspree message
+        
+        {
+            target_ks << "\f1[Server] " << target->name;
+            target_ks << "'s killing spree has ended";
+            target_ks << " (" << target->state.killingspree << ")";   
+        }
+        
         if(target!=actor)
         {
-            if(!isteam(target->team, actor->team)) actor->state.frags += gib && gun != GUN_GRENADE && gun != GUN_SHOTGUN ? 2 : 1;
+            if(!isteam(target->team, actor->team)) {
+                actor->state.frags += gib && gun != GUN_GRENADE && gun != GUN_SHOTGUN ? 2 : 1;
+                
+                // add kill to killingspree and broadcast message
+                actor->state.killingspree++;
+                
+                std::string spree;
+                
+                if(actor->state.killingspree >= 5) spree =  "is on Killing Spree";
+                if(actor->state.killingspree >= 6) spree =  "is Killing Frenzy";
+                if(actor->state.killingspree >= 7) spree =  "is Running Riot";
+                if(actor->state.killingspree >= 8) spree =  "is on Rampage";
+                if(actor->state.killingspree >= 9) spree =  "is Untouchable";
+                if(actor->state.killingspree >= 10) spree = "is Godlike";
+                
+                actor_ks << "\f1[Server] " << actor->name << " ";
+                actor_ks << spree;
+                actor_ks << " (" << actor->state.killingspree << ")";
+                
+            }
             else
             {
                 actor->state.frags--;
@@ -1333,7 +1366,21 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
             suic = true;
             logline(ACLOG_INFO, "[%s] %s suicided", actor->hostname, actor->name);
         }
+        
         sendf(-1, 1, "ri5", gib ? SV_GIBDIED : SV_DIED, target->clientnum, actor->clientnum, actor->state.frags, gun);
+        
+        
+        // print if target had a kill spree
+        if(target->state.killingspree >= 5)
+            sendservmsg(target_ks.str().c_str());
+        
+        // print if actor is on killing spree
+        if(actor->state.killingspree >= 5)
+            sendservmsg(actor_ks.str().c_str());
+        
+        // reset killing spree of target
+        target->state.killingspree = 0;
+        
         if((suic || tk) && (m_htf || m_ktf) && targethasflag >= 0)
         {
             actor->state.flagscore--;
