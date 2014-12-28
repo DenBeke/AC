@@ -1,6 +1,8 @@
 // server.cpp: little more than enhanced multicaster
 // runs dedicated or as client coroutine
 
+#include <sstream>
+
 #include "cube.h"
 
 #ifdef STANDALONE
@@ -1512,6 +1514,30 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
             logline(ACLOG_INFO, "[%s] %s suicided", actor->hostname, actor->name);
         }
         sendf(-1, 1, "ri5", gib ? SV_GIBDIED : SV_DIED, target->clientnum, actor->clientnum, actor->state.frags, gun);
+        
+        // check for knife kills
+        if(gib && gun == GUN_KNIFE) {
+            actor->state.knifekills++;
+            std::stringstream ss;
+            ss << "\f1[Server] " << actor->name << " made ";
+            ss << actor->state.knifekills;
+            ss << " knife kills";
+            sendservmsg(ss.str().c_str());
+        }
+        
+        
+        // check for headshots
+        if(gib && gun == GUN_SNIPER) {
+            actor->state.headshots++;
+            std::stringstream ss;
+            ss << "\f1[Server] " << actor->name << " made ";
+            ss << actor->state.headshots;
+            ss << " headshots";
+            sendservmsg(ss.str().c_str());
+        }
+        
+        
+        
         if((suic || tk) && (m_htf || m_ktf) && targethasflag >= 0)
         {
             actor->state.flagscore--;

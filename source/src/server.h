@@ -117,6 +117,10 @@ struct clientstate : playerstate
     int akimbomillis;
     bool scoped;
     int flagscore, frags, teamkills, deaths, shotdamage, damage, points, events, lastdisc, reconnections;
+    
+    int killingspree;   // count the number of kills in a row
+    int headshots;      // count headshots
+    int knifekills;     // count knife kills
 
     clientstate() : state(CS_DEAD) {}
 
@@ -140,6 +144,7 @@ struct clientstate : playerstate
         akimbomillis = 0;
         scoped = forced = false;
         flagscore = frags = teamkills = deaths = shotdamage = damage = points = events = lastdisc = reconnections = 0;
+        killingspree = headshots = knifekills = 0;
         respawn();
     }
 
@@ -152,6 +157,7 @@ struct clientstate : playerstate
         spawn = 0;
         lastshot = 0;
         akimbomillis = 0;
+        killingspree = 0;
         scoped = false;
     }
 };
@@ -162,6 +168,8 @@ struct savedscore
     uint ip;
     int frags, flagscore, deaths, teamkills, shotdamage, damage, team, points, events, lastdisc, reconnections;
     bool valid, forced;
+    
+    int killingspree, headshots, knifekills;
 
     void reset()
     {
@@ -184,6 +192,10 @@ struct savedscore
         reconnections = cs.reconnections;
         team = t;
         valid = true;
+        
+        killingspree = cs.killingspree;
+        headshots = cs.headshots;
+        knifekills = cs.knifekills;
     }
 
     void restore(clientstate &cs)
@@ -199,6 +211,10 @@ struct savedscore
         cs.events = events;
         cs.lastdisc = lastdisc;
         cs.reconnections = reconnections;
+        
+        cs.killingspree = killingspree;
+        cs.headshots = headshots;
+        cs.knifekills = knifekills;
         reset();
     }
 };
