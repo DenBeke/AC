@@ -112,7 +112,10 @@ SERVER_OBJS= \
 	server-standalone.o \
 	stream-standalone.o \
 	tools-standalone.o \
-	wizard-standalone.o
+	wizard-standalone.o \
+	ip.o \
+	geoip.o \
+	range.o
 MASTER_OBJS= \
 	crypto-standalone.o \
 	stream-standalone.o \

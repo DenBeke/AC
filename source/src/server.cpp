@@ -4,6 +4,15 @@
 #include <sstream>
 #include <map>
 
+// DenBeke GeoIP
+#include "geoip.h"
+#include "ip.h"
+#include <vector>
+#include <sstream>
+#include <string>
+#include <unistd.h>
+#include <sys/time.h>
+
 #include "cube.h"
 
 #ifdef STANDALONE
@@ -28,6 +37,9 @@ serverforbiddenlist forbiddenlist;
 serverpasswords passwords;
 serverinfofile infofiles;
 killmessagesfile killmsgs;
+
+// geoip database
+GeoIP database;
 
 // server state
 bool isdedicated = false;
@@ -2869,6 +2881,14 @@ void process(ENetPacket *packet, int sender, int chan)
                 cl->isauthed = true;
                 logline(ACLOG_INFO, "[%s] %s logged in (default)%s", cl->hostname, cl->name, tags);
             }
+            // DenBeke client connected
+            std::stringstream ss;
+            ss
+                << "\f1[Server] "
+                << cl->name << " connected from "
+                << database.getCountry(cl->hostname);
+            sendservmsg(ss.str().c_str());
+            logline(ACLOG_INFO, ss.str().c_str());
         }
         if(!cl->isauthed) return;
 
@@ -4376,6 +4396,11 @@ void initserver(bool dedicated, int argc, char **argv)
     }
 
     resetserverifempty();
+
+    
+    //Build database
+    database = GeoIP("GeoIPCountryWhois.csv");
+
 
     if(isdedicated)       // do not return, this becomes main loop
     {
