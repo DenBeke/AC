@@ -637,7 +637,7 @@ void moveplayer(physent *pl, int moveres, bool local, int curtime)
         {
             if(!pl->lastsplash || lastmillis-pl->lastsplash>500)
             {
-                audiomgr.playsound(S_SPLASH2, pl);
+                audiomgr.playsound(S_SPLASH2, &pl->o);
                 pl->lastsplash = lastmillis;
             }
             if(pl==player1) pl->vel.z = 0;
@@ -771,12 +771,6 @@ void crouch(bool on)
     player1->trycrouch = on;
 }
 
-int inWater(int *type)
-{
-    if(hdr.waterlevel > (*type ? player1->o.z : (player1->o.z - player1->eyeheight))) return 1;
-    else return 0;
-}
-
 COMMAND(backward, "d");
 COMMAND(forward, "d");
 COMMAND(left, "d");
@@ -784,7 +778,6 @@ COMMAND(right, "d");
 COMMANDN(jump, jumpn, "d");
 COMMAND(attack, "d");
 COMMAND(crouch, "d");
-COMMAND(inWater, "i");
 
 void fixcamerarange(physent *cam)
 {
