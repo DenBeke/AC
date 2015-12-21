@@ -1501,10 +1501,46 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
         // target was killed -> end killing spree
         std::stringstream actor_ks; // actor killingspree message
         std::stringstream target_ks; // target (ended) killingspree message
-            
-        target_ks << "\f1[Server] " << target->name;
-        target_ks << "'s killing spree has ended";
-        target_ks << " (" << target->state.killingspree << ")";
+        
+        // default message
+        target_ks
+            << "\f1[Server] " << target->name
+            << "'s trip was ended by "
+            << actor->name;
+        
+        // specific messages
+        if(target->state.killingspree >= 30) {
+            target_ks.str("");
+            target_ks
+                << "\f1[Server] " << actor->name
+                << " smashed the devil back to hell!";
+        }
+        else if(target->state.killingspree >= 20) {
+        }
+        else if(target->state.killingspree >= 15) {
+        }
+        else if(target->state.killingspree >= 10) {
+        }
+        else if(target->state.killingspree >= 8) {
+            target_ks.str("");
+            target_ks
+                << "\f1[Server] " << actor->name
+                << " stole " << target->name << "'s weed bag.";
+        }
+        else if(target->state.killingspree >= 5) {
+            target_ks.str("");
+            target_ks
+                << "\f1[Server] " << actor->name
+                << " smashed the bottle for " << target->name << ".";
+        }
+        
+        target_ks
+            << " ("
+            << target->name
+            << " had "
+            << target->state.killingspree
+            << " kills in a row)";
+        
         
         checkfrag(target, actor, gun, gib);
         
@@ -1519,16 +1555,17 @@ void serverdamage(client *target, client *actor, int damage, int gun, bool gib, 
                 
                 std::string spree;
                 
-                if(actor->state.killingspree >= 5)  spree =  "is on a killing spree";
-                if(actor->state.killingspree >= 8)  spree =  "is killing frenzy";
-                if(actor->state.killingspree >= 10) spree =  "is running riot";
-                if(actor->state.killingspree >= 15) spree =  "is on rampage";
-                if(actor->state.killingspree >= 20) spree =  "is untouchable";
-                if(actor->state.killingspree >= 30) spree = "is godlike";
+                if(actor->state.killingspree >= 5)  spree =  "is drunk";
+                if(actor->state.killingspree >= 8)  spree =  "is smoking weed";
+                if(actor->state.killingspree >= 10) spree =  "is enjoying his shrooms";
+                if(actor->state.killingspree >= 15) spree =  "is snorting coke";
+                if(actor->state.killingspree >= 20) spree =  "is pumping heroin in his veins";
+                if(actor->state.killingspree >= 30) spree =  "is the devil himself!";
                 
-                actor_ks << "\f1[Server] " << actor->name << " ";
-                actor_ks << spree;
-                actor_ks << " (" << actor->state.killingspree << " kills)";
+                actor_ks
+                    << "\f1[Server] " << actor->name << " "
+                    << spree
+                    << " (" << actor->state.killingspree << " kills in a row)";
                 
             }
             else
