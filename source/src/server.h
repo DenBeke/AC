@@ -157,7 +157,6 @@ struct clientstate : playerstate
         spawn = 0;
         lastshot = 0;
         akimbomillis = 0;
-        killingspree = 0;
         scoped = false;
     }
 };
