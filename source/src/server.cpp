@@ -2881,14 +2881,7 @@ void process(ENetPacket *packet, int sender, int chan)
                 cl->isauthed = true;
                 logline(ACLOG_INFO, "[%s] %s logged in (default)%s", cl->hostname, cl->name, tags);
             }
-            // DenBeke client connected
-            std::stringstream ss;
-            ss
-                << "\f1[Server] "
-                << cl->name << " connected from "
-                << database.getCountry(cl->hostname);
-            sendservmsg(ss.str().c_str());
-            logline(ACLOG_INFO, ss.str().c_str());
+            
         }
         if(!cl->isauthed) return;
 
@@ -2906,6 +2899,16 @@ void process(ENetPacket *packet, int sender, int chan)
         if(restorescore(*cl)) { sendresume(*cl, true); senddisconnectedscores(-1); }
         else if(cl->type==ST_TCPIP) senddisconnectedscores(sender);
         sendinitclient(*cl);
+        
+        // DenBeke client connected
+        std::stringstream ss;
+        ss
+            << "\f1[Server] "
+            << cl->name << " connected from "
+            << database.getCountry(cl->hostname);
+        sendservmsg(ss.str().c_str());
+        logline(ACLOG_INFO, ss.str().c_str());
+        
         if(clientrole != CR_DEFAULT) changeclientrole(sender, clientrole, NULL, true);
         if( curvote && curvote->result == VOTE_NEUTRAL ) callvotepacket (cl->clientnum);
 
